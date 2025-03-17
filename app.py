@@ -1,31 +1,52 @@
 import streamlit as st
-from sqlalchemy import create_engine
+import pyodbc  # For connecting to SQL Server
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Read credentials from secrets
-db_user = st.secrets["database"]["user"]
-db_password = st.secrets["database"]["password"]
-db_server = st.secrets["database"]["server"]
-db_name = st.secrets["database"]["database"]
-db_driver = st.secrets["database"]["driver"]
+# Access secrets
+try:
+    db_host = st.secrets["database"]["host"]
+    db_port = st.secrets["database"]["port"]
+    db_name = st.secrets["database"]["name"]
+    db_user = st.secrets["database"]["user"]
+    db_password = st.secrets["database"]["password"]
+    db_encrypt = st.secrets["database"]["encrypt"]
+    db_trust_server_certificate = st.secrets["database"]["trust_server_certificate"]
+    db_connection_timeout = st.secrets["database"]["connection_timeout"]
+except KeyError as e:
+    st.error(f"Missing secret: {e}. Please check your secrets configuration.")
+    st.stop()
 
-# Database connection string
+# Construct the connection string
 connection_string = (
-    f"mssql+pyodbc://{db_user}:{db_password}@{db_server}:1433/{db_name}?"
-    f"driver={db_driver}"
+    f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+    f"SERVER={db_host},{db_port};"
+    f"DATABASE={db_name};"
+    f"UID={db_user};"
+    f"PWD={db_password};"
+    f"Encrypt={db_encrypt};"  # Use "Yes" or "No"
+    f"TrustServerCertificate={db_trust_server_certificate};"  # Use "Yes" or "No"
+    f"Connection Timeout={db_connection_timeout};"
 )
+
+# Debug: Print the connection string
+#st.write("Connection String:", connection_string)
 
 # Function to fetch data
 def fetch_data():
     try:
-        engine = create_engine(connection_string)
+        # Connect to the database
+        conn = pyodbc.connect(connection_string)
         query = "SELECT * FROM mqtt_processed_data"
-        df = pd.read_sql(query, engine)
+        df = pd.read_sql(query, conn)
         return df
     except Exception as e:
-        st.error(f"Error: {e}")
+        st.error(f"Error fetching data: {e}")
         return pd.DataFrame()
+    finally:
+        # Close the connection
+        if 'conn' in locals():
+            conn.close()
 
 # Streamlit app
 st.title("MQTT Processed Data Dashboard")
