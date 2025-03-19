@@ -24,8 +24,8 @@ connection_string = (
     f"DATABASE={db_name};"
     f"UID={db_user};"
     f"PWD={db_password};"
-    f"Encrypt={db_encrypt};"  # Use "Yes" or "No"
-    f"TrustServerCertificate={db_trust_server_certificate};"  # Use "Yes" or "No"
+    f"Encrypt={'Yes' if db_encrypt else 'No'};"  # Convert boolean to "Yes" or "No"
+    f"TrustServerCertificate={'Yes' if db_trust_server_certificate else 'No'};"  # Convert boolean to "Yes" or "No"
     f"Connection Timeout={db_connection_timeout};"
 )
 
