@@ -4,3 +4,5 @@ pyodbc
 pandas
 matplotlib
 plotly.express
+fastapi
+uvicorn
