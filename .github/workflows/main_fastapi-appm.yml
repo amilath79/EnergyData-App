@@ -45,4 +45,32 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    environment
+    environment:
+      name: 'Production'
+      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: python-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_7C81DA32A56A43D9BC4F2FB37C370AD5 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_13327FD7155D4C2E96F9408F0084DF06 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B7AF90922D964EDBB5B103EFBA125F26 }}
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'fastapi-appm'
+          slot-name: 'Production'
