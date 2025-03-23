@@ -2,7 +2,6 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List
 import pyodbc
-import os
 from datetime import date  # Import date for type checking
 
 app = FastAPI()
@@ -42,15 +41,15 @@ connection_string = (
     f"PWD={db_password};"
 )
 
-# Function to fetch data from the database
-def fetch_data_from_db():
+# Function to fetch data from the database with optional pagination
+def fetch_data_from_db(skip: int = 0, limit: int = 100):
     try:
         # Connect to the database
         conn = pyodbc.connect(connection_string)
         cursor = conn.cursor()
 
-        # Query to fetch data
-        query = "SELECT * FROM device_consumption_metrics"
+        # Query to fetch data (with pagination)
+        query = f"SELECT * FROM device_consumption_metrics ORDER BY id OFFSET {skip} ROWS FETCH NEXT {limit} ROWS ONLY"
         cursor.execute(query)
 
         # Fetch all rows
@@ -91,11 +90,11 @@ def fetch_data_from_db():
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
-# Endpoint to get all data
+# Endpoint to get all data with pagination
 @app.get("/data", response_model=List[EnergyData])
-async def get_data():
+async def get_data(skip: int = 0, limit: int = 100):
     try:
-        data = fetch_data_from_db()
+        data = fetch_data_from_db(skip=skip, limit=limit)
         return data
     except HTTPException as e:
         raise e
