@@ -25,22 +25,26 @@ class EnergyData(BaseModel):
     avg_phase2_current: float
     avg_phase3_current: float
 
-
-# Database connection details
-db_host = "mqttmomentum.database.windows.net"  # Replace with your Azure SQL server name
-db_port = "1433"  # Default port for Azure SQL
-db_name = "mqttmomentum"  # Replace with your database name
-db_user = "amilath"  # Replace with your database username
-db_password = "Atth617QAQA"  # Replace with your database password
+# Database connection details from environment variables
+db_host = os.getenv("DB_HOST", "mqttmomentum.database.windows.net")
+db_port = os.getenv("DB_PORT", "1433")
+db_name = os.getenv("DB_NAME", "mqttmomentum")
+db_user = os.getenv("DB_USER", "amilath")
+db_password = os.getenv("DB_PASSWORD", "Atth617QAQA")
 
 # Construct the connection string
 connection_string = (
-    f"DRIVER={{ODBC Driver 17 for SQL Server}};"
+    f"DRIVER={{ODBC Driver 18 for SQL Server}};"  # Updated from 17 to 18
     f"SERVER={db_host},{db_port};"
     f"DATABASE={db_name};"
     f"UID={db_user};"
     f"PWD={db_password};"
 )
+
+# Simple health check endpoint
+@app.get("/")
+async def root():
+    return {"message": "Energy API is running", "status": "online"}
 
 # Function to fetch data from the database
 def fetch_data_from_db():
@@ -89,6 +93,7 @@ def fetch_data_from_db():
         return data
 
     except Exception as e:
+        print(f"Database connection error: {str(e)}")  # Improved error logging
         raise HTTPException(status_code=500, detail=f"Database error: {str(e)}")
 
 # Endpoint to get all data
@@ -100,6 +105,7 @@ async def get_data():
     except HTTPException as e:
         raise e
     except Exception as e:
+        print(f"Error in get_data endpoint: {str(e)}")  # Improved error logging
         raise HTTPException(status_code=500, detail=str(e))
 
 # Endpoint to get data by ID
@@ -114,6 +120,7 @@ async def get_data_by_id(data_id: int):
     except HTTPException as e:
         raise e
     except Exception as e:
+        print(f"Error in get_data_by_id endpoint: {str(e)}")  # Improved error logging
         raise HTTPException(status_code=500, detail=str(e))
 
 # Run the API
