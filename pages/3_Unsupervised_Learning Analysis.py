@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Fetch data from the API
 def fetch_data():
-    url = "http://127.0.0.1:8000/data"
+    url = "https://energy-api-momentum-fnc2e5cseaezerh9.swedencentral-01.azurewebsites.net/data"
     response = requests.get(url)
     if response.status_code == 200:
         return pd.DataFrame(response.json())
