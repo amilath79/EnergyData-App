@@ -6,3 +6,7 @@ matplotlib
 plotly.express
 fastapi
 uvicorn
+plotly
+requests
+scikit-learn
+statsmodels

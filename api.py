@@ -154,3 +154,6 @@ def get_data():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+    response = requests.get(api_url)
+    data = response.json()
+    print(data)  # Print the fetched data
