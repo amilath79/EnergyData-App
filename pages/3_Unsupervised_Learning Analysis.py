@@ -10,7 +10,7 @@ from sklearn.preprocessing import StandardScaler
 
 # Fetch data from the API
 def fetch_data():
-    url = "http://127.0.0.1:8002/data"
+    url = "http://127.0.0.1:8000/data"
     response = requests.get(url)
     if response.status_code == 200:
         return pd.DataFrame(response.json())

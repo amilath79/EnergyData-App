@@ -271,7 +271,7 @@ def run_metrics_process():
             logging.error(f"Error in metrics process: {e}")
 
         # Wait for 10 minutes before the next run
-        time.sleep(60)
+        time.sleep(600)
 
 # Run the metrics process
 if __name__ == "__main__":
